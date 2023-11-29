@@ -1,4 +1,6 @@
-namespace JijonMateo_AppApuntes;
+using System.Reflection;
+
+namespace JijonMateo_AppApuntes.Views;
 
 public partial class AboutPage : ContentPage
 {
@@ -8,7 +10,10 @@ public partial class AboutPage : ContentPage
 	}
     private async void LearnMore_Clicked(object sender, EventArgs e)
     {
-        // Navigate to the specified URL in the system browser.
-        await Launcher.Default.OpenAsync("https://aka.ms/maui");
+        if (BindingContext is Models.About about)
+        {
+            // Navigate to the specified URL in the system browser.
+            await Launcher.Default.OpenAsync(about.MJ_MoreInfoUrl);
+        }
     }
 }

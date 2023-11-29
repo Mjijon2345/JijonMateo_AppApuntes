@@ -1,29 +1,57 @@
-namespace JijonMateo_AppApuntes;
+namespace JijonMateo_AppApuntes.Views;
 
+[QueryProperty(nameof(ItemId), nameof(ItemId))]
 public partial class NotePage : ContentPage
 {
-    string _fileName = Path.Combine(FileSystem.AppDataDirectory, "notes.txt");
+    private void LoadNote(string fileName)
+    {
+        Models.Note noteModel = new Models.Note();
+        noteModel.MJ_Filename = fileName;
+
+        if (File.Exists(fileName))
+        {
+            noteModel.MJ_Date = File.GetCreationTime(fileName);
+            noteModel.MJ_Text = File.ReadAllText(fileName);
+        }
+
+        BindingContext = noteModel;
+    }
+
+    public string ItemId
+    {
+        set { LoadNote(value); }
+    }
 
     public NotePage()
     {
         InitializeComponent();
 
-        if (File.Exists(_fileName))
-            TextEditor.Text = File.ReadAllText(_fileName);
+        string appDataPath = FileSystem.AppDataDirectory;
+        string randomFileName = $"{Path.GetRandomFileName()}.notes.txt";
+
+        LoadNote(Path.Combine(appDataPath, randomFileName));
     }
 
-    private void SaveButton_Clicked(object sender, EventArgs e)
+    private async void SaveButton_Clicked(object sender, EventArgs e)
     {
-        // Save the file.
-        File.WriteAllText(_fileName, TextEditor.Text);
+        if (BindingContext is Models.Note note)
+            File.WriteAllText(note.MJ_Filename, TextEditor.Text);
+
+        await Shell.Current.GoToAsync("..");
     }
 
-    private void DeleteButton_Clicked(object sender, EventArgs e)
+    private async void DeleteButton_Clicked(object sender, EventArgs e)
     {
-        // Delete the file.
-        if (File.Exists(_fileName))
-            File.Delete(_fileName);
+        if (BindingContext is Models.Note note)
+        {
+            // Delete the file.
+            if (File.Exists(note.MJ_Filename))
+                File.Delete(note.MJ_Filename);
+        }
 
-        TextEditor.Text = string.Empty;
+        await Shell.Current.GoToAsync("..");
     }
+    
 }
+   
+
